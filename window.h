@@ -10,12 +10,13 @@
 #include <QChart>
 #include <QChartView>
 #include <QLineEdit>
-#include <QListWidget>
+#include <QListView>
 #include <QTextEdit>
 #include <QPushButton>
 #include <QNetworkAccessManager>
 #include <QUrl>
 #include <QNetworkReply>
+#include <QStandardItemModel>
 
 class Window : public QWidget {
     Q_OBJECT
@@ -27,6 +28,7 @@ class Window : public QWidget {
     private slots:
         void makeRequest();
         void parseReply(QNetworkReply* reply);
+        void updateTextSelect(const QItemSelection &selected, const QItemSelection &deselected);
 
     private:
         QNetworkAccessManager* nam;
@@ -42,8 +44,9 @@ class Window : public QWidget {
         QLineEdit* urlEntry;
         QPushButton* requestButton;
 
-        // Results list
-        QListWidget* resultsList;
+        // Watchlist View/Model
+        QListView* watchlistView;
+        QStandardItemModel* watchlistModel;
 
         // Details toolbar TODO
         QLabel* detailsToolbar;
@@ -55,6 +58,8 @@ class Window : public QWidget {
         QChart* dataChart;
         QChartView* chartView;
         QLineSeries* historicalData;
+
+
 
 };
 

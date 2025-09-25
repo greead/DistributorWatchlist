@@ -37,14 +37,14 @@ Window::Window(QWidget *parent): QWidget{parent} {
     requestButton = new QPushButton{"Send Request"};
     searchColumnLayout->addWidget(requestButton);
 
-    // Create listbox
-    resultsList = new QListWidget{};
-    searchColumnLayout->addWidget(resultsList);
+    // Create watchlist model
+    watchlistModel = new QStandardItemModel{0, 1};
 
-    // Dummy data for listbox
-    new QListWidgetItem(tr("Watchlist item 1"), resultsList);
-    new QListWidgetItem(tr("Watchlist item 2"), resultsList);
-    new QListWidgetItem(tr("Watchlist item 3"), resultsList);
+    // Create watchlist view
+    watchlistView = new QListView{};
+    watchlistView->setModel(watchlistModel);
+    searchColumnLayout->addWidget(watchlistView);
+    connect(watchlistView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &Window::updateTextSelect);
 
     // Create toolbar
     detailsToolbar = new QLabel{"WATCHLIST ITEM DETAILS"};
@@ -77,5 +77,21 @@ void Window::makeRequest() {
 
 void Window::parseReply(QNetworkReply* reply) {
     QJsonDocument jsonDoc = QJsonDocument::fromJson(reply->readAll());
+    QJsonObject jsonObj = jsonDoc.object();
+    for (auto it = jsonObj.begin(); it != jsonObj.end(); it++) {
+        auto item = new QStandardItem{it.key()};
+        item->setData(jsonObj.value(it.key()).toJson());
+        watchlistModel->appendRow(item);
+    }
+    // Add items to a model
     outputText->setText(jsonDoc.toJson());
+
+
+}
+
+void Window::updateTextSelect(const QItemSelection &selected, const QItemSelection &deselected) {
+    for(auto idx : selected.indexes()) {
+        QStandardItem* item = watchlistModel->itemFromIndex(idx);
+        outputText->setText(item->data().toString());
+    }
 }
