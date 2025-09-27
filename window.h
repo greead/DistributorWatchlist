@@ -13,6 +13,7 @@
 #include <QListView>
 #include <QTextEdit>
 #include <QPushButton>
+#include <QGridLayout>
 #include <QNetworkAccessManager>
 #include <QUrl>
 #include <QNetworkReply>
@@ -32,6 +33,10 @@ class Window : public QWidget {
 
     private:
         QNetworkAccessManager* nam;
+
+        // Central widget
+        QWidget* centralWidget;
+        QGridLayout* centralLayout;
 
         // General layout
         QHBoxLayout* generalLayout;
@@ -58,6 +63,11 @@ class Window : public QWidget {
         QChart* dataChart;
         QChartView* chartView;
         QLineSeries* historicalData;
+
+        // Tab and page Widgets
+        QTabWidget* tabs;
+        QWidget* searchPage;
+        QWidget* watchlistPage;
 
 
 

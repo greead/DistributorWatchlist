@@ -10,11 +10,32 @@ Window::Window(QWidget *parent): QWidget{parent} {
     // Set window size
     setFixedSize(800, 600);
 
-    // Create NAM
+    //////////// NETWORKING ////////////
+    // Create and connect NAM
     nam = new QNetworkAccessManager{this};
+    connect(nam, SIGNAL(finished(QNetworkReply*)), this, SLOT(parseReply(QNetworkReply*)));
 
+    //////////// DATABASE ////////////
+    // TODO
+
+    //////////// CENTRAL LAYOUT ////////////
+    // Set up central layout
+    centralLayout = new QGridLayout{this};
+
+    // Set up tabs
+    tabs = new QTabWidget{};
+    centralLayout->addWidget(tabs);
+
+    // Set up pages
+    searchPage = new QWidget{};
+    watchlistPage = new QWidget{};
+    tabs->addTab(searchPage, "Search");
+    tabs->addTab(watchlistPage, "Watchlist");
+
+    //////////// SEARCH PAGE ////////////
     // Create general hbox
-    generalLayout = new QHBoxLayout{this};
+    generalLayout = new QHBoxLayout{};
+    searchPage->setLayout(generalLayout);
 
     // Create search column vbox
     searchColumnLayout = new QVBoxLayout{};
@@ -24,6 +45,7 @@ Window::Window(QWidget *parent): QWidget{parent} {
     detailsColumnLayout = new QVBoxLayout{};
     generalLayout->addLayout(detailsColumnLayout);
 
+    //////////// SEARCH BAR ////////////
     // Create search box form
     urlLayout = new QFormLayout{};
     searchColumnLayout->addLayout(urlLayout);
@@ -37,6 +59,10 @@ Window::Window(QWidget *parent): QWidget{parent} {
     requestButton = new QPushButton{"Send Request"};
     searchColumnLayout->addWidget(requestButton);
 
+    // Send request on button press
+    connect(requestButton, SIGNAL(clicked()), this, SLOT(makeRequest()));
+
+    //////////// LIST VIEW ////////////
     // Create watchlist model
     watchlistModel = new QStandardItemModel{0, 1};
 
@@ -46,14 +72,17 @@ Window::Window(QWidget *parent): QWidget{parent} {
     searchColumnLayout->addWidget(watchlistView);
     connect(watchlistView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &Window::updateTextSelect);
 
+    //////////// TOOLBAR ////////////
     // Create toolbar
     detailsToolbar = new QLabel{"WATCHLIST ITEM DETAILS"};
     detailsColumnLayout->addWidget(detailsToolbar);
 
+    //////////// DETAILS PANE ////////////
     // Create output textbox
     outputText = new QTextEdit{};
     detailsColumnLayout->addWidget(outputText);
 
+    //////////// CHARTS ////////////
     // Create historical data chart
     dataChart = new QChart{};
     historicalData = new QLineSeries{};
@@ -64,11 +93,8 @@ Window::Window(QWidget *parent): QWidget{parent} {
     chartView = new QChartView{dataChart};
     detailsColumnLayout->addWidget(chartView);
 
-    // Send request on button press
-    connect(requestButton, SIGNAL(clicked()), this, SLOT(makeRequest()));
 
-    // Display results on network reply
-    connect(nam, SIGNAL(finished(QNetworkReply*)), this, SLOT(parseReply(QNetworkReply*)));
+
 }
 
 void Window::makeRequest() {
